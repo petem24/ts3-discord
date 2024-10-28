@@ -133,18 +133,26 @@ const getMessageContent = async () => {
 
   const header = `**Last Updated:** ${formattedDate}\n\n`;
 
-  return header + data.map((channel) => {
-    const channelInfo = `**${channel.name}**`;
-    const clientsInfo = channel.clients.length > 0
-      ? channel.clients.map((client) =>
-        `- **${client.name}**${client.inputMuted ? " 🔇 Input Muted" : ""}${
-          client.outputMuted ? " 🔈 Output Muted" : ""
-        }`
-      ).join("\n")
-      : "No clients connected.";
+  return (
+    header +
+    data
+      .map((channel) => {
+        const channelInfo = `**${channel.name}**`;
+        const clientsInfo = channel.clients.length > 0
+          ? channel.clients
+            .map(
+              (client) =>
+                `- ${client.name}${client.inputMuted ? " 🎤" : ""}${
+                  client.outputMuted ? " 🔇" : ""
+                }`,
+            )
+            .join("\n")
+          : "";
 
-    return `${channelInfo}\n${clientsInfo}`;
-  }).join("\n\n");
+        return `${channelInfo}${clientsInfo ? `\n${clientsInfo}` : ""}`;
+      })
+      .join("\n\n")
+  );
 };
 
 export interface IChannelData {
