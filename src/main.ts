@@ -154,7 +154,7 @@ async function runOneShot(): Promise<void> {
   }
 }
 
-async function runDevServer(): Promise<void> {
+async function runServer(): Promise<void> {
   const ts3 = await connectTeamSpeak();
   console.log("TS3 instance set");
 
@@ -209,7 +209,7 @@ async function runDevServer(): Promise<void> {
   await new Promise<void>((resolve) => {
     server.listen(listenPort, () => {
       console.log(
-        `Dev server listening on ${listenPort} (update every ${intervalMs}ms)`,
+        `Listening on ${listenPort} (Discord refresh every ${intervalMs}ms)`,
       );
       resolve();
     });
@@ -244,13 +244,13 @@ async function runDevServer(): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  if (process.env.ENABLE_DEV_SERVER === "true") {
-    await runDevServer();
+  if (process.env.ONE_SHOT === "true") {
+    await runOneShot();
+    process.exit(process.exitCode ?? 0);
     return;
   }
 
-  await runOneShot();
-  process.exit(process.exitCode ?? 0);
+  await runServer();
 }
 
 main().catch((e) => {

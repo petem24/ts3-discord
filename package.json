@@ -13,8 +13,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/main.js",
-    "dev": "ENABLE_DEV_SERVER=true tsx watch src/main.ts",
-    "dev:prod": "tsx src/main.ts"
+    "dev": "tsx watch src/main.ts",
+    "dev:prod": "ONE_SHOT=true tsx src/main.ts"
   },
   "dependencies": {
     "discord.js": "^14.25.1",

@@ -1,6 +1,6 @@
 # Show ts3 current users in discord text channel
 
-Node.js + TypeScript. Production runs as a **one-shot** job: connect to TeamSpeak and Discord, update the configured text channel message, disconnect, exit. Use [Railway Cron Jobs](https://docs.railway.com/cron-jobs) to run `pnpm start` on a schedule (UTC). Railway enforces a **minimum interval of 5 minutes** between cron runs.
+Node.js + TypeScript. By default the app runs a **long-lived** process: it connects to TeamSpeak and Discord, serves HTTP (`/channels`, `/update`), and refreshes the configured text channel on an interval. For platforms that only support **one-shot** scheduled jobs (e.g. Railway Cron), set `ONE_SHOT=true` so each run connects, updates the message, disconnects, and exits.
 
 Copy [`.env.example`](.env.example) to `.env` and set the values below.
 
@@ -17,23 +17,21 @@ Copy [`.env.example`](.env.example) to `.env` and set the values below.
 | `DISCORD_TOKEN` | Discord bot token |
 | `DISCORD_CHANNEL_ID` | Target text channel snowflake |
 
-Optional (local dev HTTP server — used when `ENABLE_DEV_SERVER=true`):
-
 | Variable | Description |
 |----------|-------------|
-| `ENABLE_DEV_SERVER` | Set to `true` to run the dev HTTP server and periodic updates. `pnpm run dev` sets this automatically. |
+| `ONE_SHOT` | Set to `true` for one-shot mode (no HTTP server; update once and exit). Use for Railway Cron–style schedules. |
 | `DEV_SERVER_PORT` | HTTP listen port for `/channels` and `/update` (default `3000`). This is **not** the same as TS3 `PORT`. |
-| `DEV_UPDATE_INTERVAL_MS` | Interval in ms between Discord refreshes in dev (default `60000`). |
+| `DEV_UPDATE_INTERVAL_MS` | Interval in ms between Discord refreshes in long-lived mode (default `60000`). |
 
 ## Scripts
 
 - `pnpm run build` — compile TypeScript to `dist/`
-- `pnpm start` — run `dist/main.js` (production / Railway one-shot)
-- `pnpm run dev` — dev mode: `ENABLE_DEV_SERVER=true`, `tsx watch src/main.ts` (HTTP + timed updates; reloads on file changes)
-- `pnpm run dev:prod` — one-shot run via `tsx` (same behavior as production/Railway, no HTTP server)
+- `pnpm start` — run `dist/main.js` (long-lived HTTP server + periodic Discord updates by default)
+- `pnpm run dev` — `tsx watch src/main.ts` (same as production behavior; reloads on file changes)
+- `pnpm run dev:prod` — one-shot via `tsx` (`ONE_SHOT=true`; same as cron-style production)
 
 ## Railway
 
 - **Build:** `pnpm install && pnpm run build`
 - **Start:** `pnpm start`
-- **Cron schedule:** e.g. `*/5 * * * *` for every 5 minutes (see Railway docs for limits)
+- **Cron (one-shot):** set `ONE_SHOT=true` and use a schedule such as `*/5 * * * *` (see [Railway Cron Jobs](https://docs.railway.com/cron-jobs); minimum interval is often 5 minutes, UTC).
